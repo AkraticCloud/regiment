@@ -20,8 +20,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             RegimentTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
+                    WorkoutScreen(
+                        viewModel = workoutViewModel,
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
@@ -40,8 +40,11 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
 
 @Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
+fun WorkoutScreenPreview() {
     RegimentTheme {
-        Greeting("Android")
-    }
+        val dummyViewModel = WorkoutViewModel().apply {
+            addWorkout("Cardio", "2025-10-19", "Running")
+            addWorkout("Weight", "2025-10-19", "Bench Press")
+        }
+        WorkoutScreen(viewModel = dummyViewModel)
 }
