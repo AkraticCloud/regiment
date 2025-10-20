@@ -3,7 +3,7 @@ package com.example.regiment.data
 class WorkoutViewModel : ViewModel() {
     private val workoutss = mutableStateListOf<Workout>()
     //behave like MutableList<Workout> notifies when their is a list change
-    val workouts: List<Workout> get() = _workouts
+    val workouts: List<Workout> get() = Workouts
     // allows you to access with out editing the data encapsulation
 
      private var currentId = 0
