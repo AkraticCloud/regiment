@@ -12,6 +12,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.regiment.ui.theme.RegimentTheme
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.regiment.ui.theme.screens.WorkoutScreen
+import com.example.regiment.viewmodel.WorkoutViewModel
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,9 +23,11 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             RegimentTheme {
+                val workoutViewModel: WorkoutViewModel = viewModel()
+
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     WorkoutScreen(
-                        viewModel = workoutViewModel,
+                        viewModel = WorkoutViewModel(),
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
@@ -30,21 +36,20 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+
 
 @Preview(showBackground = true)
 @Composable
-fun WorkoutScreenPreview() {
+fun MainActivityPreview() {
     RegimentTheme {
+
         val dummyViewModel = WorkoutViewModel().apply {
-            addWorkout("Cardio", "2025-10-19", "Running")
-            addWorkout("Weight", "2025-10-19", "Bench Press")
+            addWorkout("Cardio", "2025-10-19", "Running 5k")
+            addWorkout("Weight", "2025-10-20", "Bench Press 3x10")
+            addWorkout("Yoga", "2025-10-21", "Morning flow")
         }
+
         WorkoutScreen(viewModel = dummyViewModel)
+
+    }
 }
