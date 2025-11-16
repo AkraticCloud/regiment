@@ -3,6 +3,7 @@ package com.example.regiment.viewmodel
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import com.example.regiment.data.Workout
+import com.example.regiment.data.WorkoutCategory
 
 class WorkoutViewModel : ViewModel() {
     private val workoutss = mutableStateListOf<Workout>()
@@ -14,10 +15,16 @@ class WorkoutViewModel : ViewModel() {
     //simple counter to assign a unique ID to each Workout added
 
    //function adds a new workout to the list, assigns a unique ID and then increments the counter.
-  fun addWorkout(type: String, date: String, description: String) {
-       val newWorkout = Workout(
+    /* Update:
+     The main category of the workout (e.g., WEIGHT_TRAINING, CARDIO, CALISTHENICS)
+     The specific type of workout within the category
+     */
+
+  fun addWorkout(category: WorkoutCategory, subType: String, date: String, description: String) {
+      val formattedType = "${category.name.replace('_', ' ').lowercase().replaceFirstChar { it.uppercase() }} - $subType"
+      val newWorkout = Workout(
            id = ( workoutss.maxOfOrNull { it.id } ?: 0) + 1,
-           type = type,
+           type = formattedType,
            date = date,
            description = description
        )
@@ -29,4 +36,6 @@ class WorkoutViewModel : ViewModel() {
     fun deleteWorkout(id: Int) {
         workoutss.removeIf { it.id == id }
     }
+
+
 }
