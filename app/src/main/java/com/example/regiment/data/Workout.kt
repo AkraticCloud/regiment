@@ -5,3 +5,12 @@ data class Workout(
     val type: String, // workout category
     val description: String
 )
+
+data class WorkoutTypeDetail(
+    val category: WorkoutCategory,
+    val subType: String,
+)
+
+enum class WorkoutCategory {
+    WEIGHT_TRAINING, CARDIO, CALISTHENICS
+}
