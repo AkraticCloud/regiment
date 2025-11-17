@@ -8,34 +8,36 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.example.regiment.data.WorkoutCategory
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.regiment.viewmodel.WorkoutViewModel
 import com.example.regiment.R
+import com.example.regiment.data.WorkoutCategory
+import com.example.regiment.viewmodel.WorkoutViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WorkoutScreen(
-    viewModel: WorkoutViewModel = viewModel(),
+    viewModel: WorkoutViewModel,
     modifier: Modifier = Modifier
 ) {
-    val workouts = viewModel.workouts // List<Workout>
+    val workouts = viewModel.workouts   // backed by mutableStateList in ViewModel
 
-    // Dropdown states from android studios and chat code
+    // --- Dropdown state ---
     var expandedMain by remember { mutableStateOf(false) }
     var expandedSub by remember { mutableStateOf(false) }
 
     var selectedCategory by remember { mutableStateOf<WorkoutCategory?>(null) }
     var selectedSubType by remember { mutableStateOf("") }
 
+    // --- Extra form fields ---
+    var date by remember { mutableStateOf("") }
+    var description by remember { mutableStateOf("") }
+
     // --- Predefined subtype options ---
     val weightTrainingOptions = listOf(
         "Resistance",
-        "Free Weights (Dumbbells, Barbells, Kettle bells)",
+        "Free Weights (Dumbbells, Barbells, Kettlebells)",
         "Machines",
         "Body weight",
         "Resistance Bands"
@@ -44,7 +46,7 @@ fun WorkoutScreen(
     val cardioOptions = listOf(
         "Running",
         "Cycling",
-        "HILT",
+        "HIIT",
         "Rowing",
         "Jump Rope"
     )
@@ -57,6 +59,13 @@ fun WorkoutScreen(
         "Dips"
     )
 
+    // Enable button only when everything is filled in
+    val isFormValid =
+        selectedCategory != null &&
+                selectedSubType.isNotBlank() &&
+                date.isNotBlank() &&
+                description.isNotBlank()
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -66,11 +75,11 @@ fun WorkoutScreen(
                 ),
                 navigationIcon = {
                     IconButton(onClick = {
-                        // future dialog popup for scheduled worrk out
+                        // future dialog popup for scheduled workout
                     }) {
                         Icon(
                             imageVector = Icons.Default.Add,
-                            contentDescription = "Add Workout"
+                            contentDescription = "Schedule Workout"
                         )
                     }
                 }
@@ -83,20 +92,32 @@ fun WorkoutScreen(
             modifier = Modifier
                 .padding(padding)
                 .padding(16.dp)
+                .fillMaxSize()
         ) {
 
-            //CATEGORY DROPDOWN
+            // =======================
+            // CATEGORY DROPDOWN
+            // =======================
             ExposedDropdownMenuBox(
                 expanded = expandedMain,
                 onExpandedChange = { expandedMain = !expandedMain }
             ) {
                 TextField(
-                    value = selectedCategory?.name?.replace("_", " ") ?: "Select category",
+                    value = selectedCategory?.name
+                        ?.replace("_", " ")
+                        ?.lowercase()
+                        ?.replaceFirstChar { it.uppercaseChar() }
+                        ?: "Select category",
                     onValueChange = {},
                     readOnly = true,
                     label = { Text("Workout Category") },
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedMain) },
-                    modifier = Modifier.menuAnchor(type  = MenuAnchorType.PrimaryNotEditable, enabled = true)
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedMain)
+                    },
+                    modifier = Modifier.menuAnchor(
+                        type = MenuAnchorType.PrimaryNotEditable,
+                        enabled = true
+                    )
                 )
 
                 ExposedDropdownMenu(
@@ -107,21 +128,26 @@ fun WorkoutScreen(
                         DropdownMenuItem(
                             text = {
                                 Text(
-                                    category.name.replace("_", " ").lowercase()
-                                        .replaceFirstChar { it.uppercaseChar() })
+                                    category.name.replace("_", " ")
+                                        .lowercase()
+                                        .replaceFirstChar { it.uppercaseChar() }
+                                )
                             },
                             onClick = {
                                 selectedCategory = category
                                 expandedMain = false
-                                selectedSubType = "" // reset subtype when category changes
+                                selectedSubType = ""     // reset subtype when category changes
                             }
                         )
                     }
                 }
             }
+
             Spacer(modifier = Modifier.height(16.dp))
 
+            // =======================
             // SUBTYPE DROPDOWN
+            // =======================
             val subTypes = when (selectedCategory) {
                 WorkoutCategory.WEIGHT_TRAINING -> weightTrainingOptions
                 WorkoutCategory.CARDIO -> cardioOptions
@@ -139,8 +165,12 @@ fun WorkoutScreen(
                         onValueChange = {},
                         readOnly = true,
                         label = { Text("Specific Workout Type") },
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedSub) },
-                        modifier = Modifier.menuAnchor(type = MenuAnchorType.PrimaryNotEditable, enabled = true
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedSub)
+                        },
+                        modifier = Modifier.menuAnchor(
+                            type = MenuAnchorType.PrimaryNotEditable,
+                            enabled = true
                         )
                     )
 
@@ -163,27 +193,59 @@ fun WorkoutScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // =======================
+            // DATE & DESCRIPTION INPUTS
+            // =======================
+            OutlinedTextField(
+                value = date,
+                onValueChange = { date = it },
+                label = { Text("Date (e.g., 2025-10-19)") },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            OutlinedTextField(
+                value = description,
+                onValueChange = { description = it },
+                label = { Text("Description") },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // =======================
             // ADD WORKOUT BUTTON
+            // =======================
             Button(
                 onClick = {
-                    if (selectedCategory != null && selectedSubType.isNotEmpty()) {
-                        viewModel.addWorkout(
-                            category = selectedCategory!!,
-                            subType = selectedSubType,
-                            date = "2025-01-01",       // replace with real input later
-                            description = "Auto-added" // replace with real input later
-                        )
-                    }
+                    val category = selectedCategory!!
+                    viewModel.addWorkout(
+                        category = category,
+                        subType = selectedSubType,
+                        date = date,
+                        description = description
+                    )
+
+                    // Clear form after adding
+                    selectedCategory = null
+                    selectedSubType = ""
+                    date = ""
+                    description = ""
                 },
-                enabled = selectedCategory != null && selectedSubType.isNotEmpty()
+                enabled = isFormValid
             ) {
                 Text("Add Workout")
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // =======================
+            // WORKOUT LIST
+            // =======================
             LazyColumn(
-                modifier = Modifier.padding(padding)
+                modifier = Modifier
+                    .fillMaxSize()
             ) {
                 items(workouts) { workout ->
                     Card(
