@@ -15,6 +15,7 @@ import com.example.regiment.ui.theme.RegimentTheme
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.regiment.ui.theme.screens.WorkoutScreen
 import com.example.regiment.viewmodel.WorkoutViewModel
+import com.example.regiment.data.WorkoutCategory
 
 
 class MainActivity : ComponentActivity() {
@@ -27,7 +28,7 @@ class MainActivity : ComponentActivity() {
 
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     WorkoutScreen(
-                        viewModel = WorkoutViewModel(),
+                        viewModel = workoutViewModel,
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
@@ -44,9 +45,26 @@ fun MainActivityPreview() {
     RegimentTheme {
 
         val dummyViewModel = WorkoutViewModel().apply {
-            addWorkout("Cardio", "2025-10-19", "Running 5k")
-            addWorkout("Weight", "2025-10-20", "Bench Press 3x10")
-            addWorkout("Yoga", "2025-10-21", "Morning flow")
+            addWorkout(
+                category = WorkoutCategory.CARDIO,
+                subType = "Running",
+                date = "2025-10-19",
+                description = "Ran a 5k"
+            )
+
+            addWorkout(
+                category = WorkoutCategory.WEIGHT_TRAINING,
+                subType = "Bench Press",
+                date = "2025-10-20",
+                description = "Bench Press 3x10"
+            )
+
+            addWorkout(
+                category = WorkoutCategory.CALISTHENICS,
+                subType = "Planks",
+                date = "2025-10-21",
+                description = "Core workout"
+            )
         }
 
         WorkoutScreen(viewModel = dummyViewModel)
