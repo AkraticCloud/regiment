@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Regiment</string>
     <string name="app_title">Workout Log</string>
+    <string name="schedule_title">Workout Scheduler</string>
 </resources>
